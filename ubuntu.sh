@@ -54,14 +54,22 @@ install_dependencies() {
 download_ubuntu() {
     log "Downloading Ubuntu 24.04.3 LTS rootfs..."
     
-    # Create ubuntu directory
-    mkdir -p ~/ubuntu-fs
+    # Create ubuntu directory structure (matching original)
+    mkdir -p ~/ubuntu-gui-termux/root-fs
     
-    # Download Ubuntu rootfs (using original method)
-    cd ~/ubuntu-fs
+    # Download Ubuntu rootfs (using working method)
+    cd ~/ubuntu-gui-termux/root-fs
     
-    # Download Ubuntu 24.04.3 LTS rootfs (original working method)
+    # Download Ubuntu 24.04.3 LTS rootfs (working URL)
+    log "Downloading from working URL..."
     wget -O ubuntu-rootfs.tar.xz https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04.3-server-cloudimg-arm64-root.tar.xz
+    
+    # Check if download was successful
+    if [ ! -f "ubuntu-rootfs.tar.xz" ]; then
+        error "Download failed! Trying alternative method..."
+        # Alternative download method
+        wget -O ubuntu-rootfs.tar.xz https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64-root.tar.xz
+    fi
     
     # Extract rootfs
     log "Extracting Ubuntu rootfs..."
@@ -71,16 +79,19 @@ download_ubuntu() {
     rm ubuntu-rootfs.tar.xz
     
     # Set proper permissions for rootfs
-    chmod -R 755 ~/ubuntu-fs
+    chmod -R 755 ~/ubuntu-gui-termux/root-fs
     
-    log "Ubuntu rootfs downloaded and extracted!"
+    # Create symlink for compatibility
+    ln -sf ~/ubuntu-gui-termux/root-fs ~/ubuntu-fs
+    
+    log "Ubuntu rootfs downloaded and extracted to root-fs folder!"
 }
 
 # Function to setup Ubuntu environment
 setup_ubuntu() {
     log "Setting up Ubuntu environment..."
     
-    cd ~/ubuntu-fs
+    cd ~/ubuntu-gui-termux/root-fs
     
     # Create essential directories
     mkdir -p dev proc sys tmp var/run var/log
@@ -116,7 +127,7 @@ install_gui_packages() {
     log "Installing lightweight GUI packages..."
     
     # Create startup script for Ubuntu
-    cat > ~/ubuntu-fs/start-gui.sh << 'EOF'
+    cat > ~/ubuntu-gui-termux/root-fs/start-gui.sh << 'EOF'
 #!/bin/bash
 
 # Update package lists
@@ -154,7 +165,7 @@ echo "Start VNC server with: vncserver :1 -geometry 1024x768 -depth 16"
 echo "Connect using VNC viewer to: localhost:5901"
 EOF
 
-    chmod +x ~/ubuntu-fs/start-gui.sh
+    chmod +x ~/ubuntu-gui-termux/root-fs/start-gui.sh
     
     log "GUI packages installation script created!"
 }
@@ -177,18 +188,18 @@ NC='\033[0m'
 
 echo -e "${GREEN}Starting Ubuntu 24.04.3 LTS in Termux...${NC}"
 
-# Check if ubuntu-fs exists
-if [ ! -d "$HOME/ubuntu-fs" ]; then
-    echo "Ubuntu filesystem not found! Please run ubuntu.sh first."
-    exit 1
-fi
+    # Check if root-fs exists
+    if [ ! -d "$HOME/ubuntu-gui-termux/root-fs" ]; then
+        echo "Ubuntu rootfs not found! Please run ubuntu.sh first."
+        exit 1
+    fi
 
-# Start Ubuntu with proot
-proot \
-    --link2symlink \
-    --kill-on-exit \
-    --root-id \
-    --rootfs="$HOME/ubuntu-fs" \
+    # Start Ubuntu with proot
+    proot \
+        --link2symlink \
+        --kill-on-exit \
+        --root-id \
+        --rootfs="$HOME/ubuntu-gui-termux/root-fs" \
     --cwd=/root \
     --bind=/dev \
     --bind=/proc \
@@ -219,18 +230,18 @@ NC='\033[0m'
 
 echo -e "${GREEN}Starting Ubuntu with VNC GUI...${NC}"
 
-# Check if ubuntu-fs exists
-if [ ! -d "$HOME/ubuntu-fs" ]; then
-    echo "Ubuntu filesystem not found! Please run ubuntu.sh first."
-    exit 1
-fi
+    # Check if root-fs exists
+    if [ ! -d "$HOME/ubuntu-gui-termux/root-fs" ]; then
+        echo "Ubuntu rootfs not found! Please run ubuntu.sh first."
+        exit 1
+    fi
 
-# Start Ubuntu with VNC support
-proot \
-    --link2symlink \
-    --kill-on-exit \
-    --root-id \
-    --rootfs="$HOME/ubuntu-fs" \
+    # Start Ubuntu with VNC support
+    proot \
+        --link2symlink \
+        --kill-on-exit \
+        --root-id \
+        --rootfs="$HOME/ubuntu-gui-termux/root-fs" \
     --cwd=/root \
     --bind=/dev \
     --bind=/proc \
@@ -268,18 +279,18 @@ NC='\033[0m'
 
 echo -e "${GREEN}Setting up GUI in Ubuntu...${NC}"
 
-# Check if ubuntu-fs exists
-if [ ! -d "$HOME/ubuntu-fs" ]; then
-    echo "Ubuntu filesystem not found! Please run ubuntu.sh first."
-    exit 1
-fi
+    # Check if root-fs exists
+    if [ ! -d "$HOME/ubuntu-gui-termux/root-fs" ]; then
+        echo "Ubuntu rootfs not found! Please run ubuntu.sh first."
+        exit 1
+    fi
 
-# Run GUI setup inside Ubuntu
-proot \
-    --link2symlink \
-    --kill-on-exit \
-    --root-id \
-    --rootfs="$HOME/ubuntu-fs" \
+    # Run GUI setup inside Ubuntu
+    proot \
+        --link2symlink \
+        --kill-on-exit \
+        --root-id \
+        --rootfs="$HOME/ubuntu-gui-termux/root-fs" \
     --cwd=/root \
     --bind=/dev \
     --bind=/proc \
@@ -310,6 +321,14 @@ EOF
     
     # Make scripts executable in current directory
     chmod +x *.sh 2>/dev/null || true
+    
+    # Make all .sh files executable in ubuntu-gui-termux directory
+    if [ -d "$HOME/ubuntu-gui-termux" ]; then
+        find ~/ubuntu-gui-termux -name "*.sh" -exec chmod +x {} \;
+    fi
+    
+    # Also make scripts executable in current working directory
+    find . -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
     
     log "Startup scripts created successfully!"
 }
@@ -403,7 +422,13 @@ main() {
     # Final permissions setup
     log "Setting up mobile-friendly permissions..."
     chmod +x ~/startubuntu.sh ~/startvnc.sh ~/setupgui.sh
-    chmod -R 755 ~/ubuntu-fs
+    chmod -R 755 ~/ubuntu-gui-termux/root-fs
+    
+    # Make ALL .sh files executable everywhere
+    log "Setting execute permissions for all .sh files..."
+    chmod +x ~/ubuntu-gui-termux/*.sh 2>/dev/null || true
+    find ~/ubuntu-gui-termux -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
+    find . -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
     
     echo -e "${GREEN}"
     echo "==============================================="
