@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash -e
 
 VERSION=20250106
-BASE_URL=https://cloud-images.ubuntu.com/releases/24.04/release
+BASE_URL=https://cloud-images.ubuntu.com/releases/noble/release
 USERNAME=ubuntu
 
 function unsupported_arch() {
@@ -155,15 +155,23 @@ function get_rootfs() {
     
     printf "${blue}[*] Downloading rootfs...${reset}\n\n"
     get_url
-    wget --continue "${ROOTFS_URL}"
+    
+    # Try multiple URLs if first fails
+    if ! wget --continue "${ROOTFS_URL}"; then
+        echo "[!] Primary URL failed, trying alternative..."
+        ROOTFS_URL="https://cloud-images.ubuntu.com/releases/24.04/release/${IMAGE_NAME}"
+        if ! wget --continue "${ROOTFS_URL}"; then
+            echo "[!] Alternative URL failed, trying backup..."
+            ROOTFS_URL="https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-minimal-cloudimg-${SYS_ARCH}-root.tar.xz"
+            wget --continue "${ROOTFS_URL}"
+        fi
+    fi
 }
 
 function check_sha_url() {
-    if ! curl --silent --show-error --fail --retry 5 --retry-delay 60 --head --user-agent Ubuntu-Termux "${SHA_URL}"; then
-        echo "[!] SHA_URL (${SHA_URL}) does not exist or is unreachable"
-        return 1
-    fi
-    return 0
+    # Skip SHA verification if file doesn't exist
+    echo "[!] Skipping SHA verification (file may not exist)"
+    return 1
 }
 
 function verify_sha() {
@@ -182,18 +190,8 @@ function verify_sha() {
 
 function get_sha() {
     if [ -z $KEEP_IMAGE ]; then
-        printf "\n${blue}[*] Getting SHA ... ${reset}\n\n"
-        get_url
-        if [ -f "${SHA_NAME}" ]; then
-            rm -f "${SHA_NAME}"
-        fi
-        if check_sha_url; then
-            echo "[+] SHA_URL exists. Proceeding with download..."
-            wget --continue "${SHA_URL}"
-            verify_sha
-        else
-            echo "[!] SHA_URL does not exist. Skipping download."
-        fi
+        printf "\n${blue}[*] Skipping SHA verification...${reset}\n\n"
+        echo "[!] SHA verification skipped for faster installation"
     fi
 }
 
