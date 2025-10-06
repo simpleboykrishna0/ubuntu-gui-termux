@@ -1,0 +1,40 @@
+===============================================
+Ubuntu in Termux with VNC GUI - Instructions
+===============================================
+
+INSTALLATION COMPLETE! 🎉
+
+Now you can use Ubuntu with VNC GUI:
+
+1. START UBUNTU (Terminal only):
+   ./startubuntu.sh
+
+2. START UBUNTU WITH VNC GUI:
+   ./startvnc.sh
+
+3. SETUP ADDITIONAL GUI PACKAGES:
+   ./setupgui.sh
+
+4. CONNECT WITH VNC VIEWER:
+   - Download VNC Viewer app from Play Store
+   - Connect to: localhost:5901
+   - Password: ubuntu
+
+VNC VIEWER APPS:
+- RealVNC Viewer (Recommended)
+- VNC Viewer by RealVNC
+- bVNC Pro
+
+FEATURES:
+✅ Ubuntu 24.04 LTS
+✅ XFCE4 Desktop Environment
+✅ VNC Remote Access
+✅ Firefox ESR Browser
+✅ File Manager (Thunar)
+✅ Terminal (XFCE4 Terminal)
+✅ Text Editor (Mousepad)
+
+Total Size: Optimized for mobile
+
+Maintained by: Krishna (simpleboykrishna0)
+===============================================
