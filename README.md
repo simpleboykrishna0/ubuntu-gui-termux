@@ -53,8 +53,10 @@ pkg install wget proot git curl tar xz-utils -y
 git clone https://github.com/simpleboykrishna0/ubuntu-gui-termux.git
 cd ubuntu-gui-termux
 
-# 4. Give execution permission
-chmod +x ubuntu.sh
+# 4. Give execution permission (automatic)
+# All .sh files will be automatically made executable
+# But if needed, run manually:
+chmod +x *.sh
 
 # 5. Run installer (automated)
 ./ubuntu.sh -y
@@ -81,7 +83,9 @@ wget https://raw.githubusercontent.com/simpleboykrishna0/ubuntu-gui-termux/maste
 wget https://raw.githubusercontent.com/simpleboykrishna0/ubuntu-gui-termux/master/startvnc.sh
 wget https://raw.githubusercontent.com/simpleboykrishna0/ubuntu-gui-termux/master/setupgui.sh
 
-# 4. Make executable
+# 4. Make executable (automatic)
+# All .sh files will be automatically made executable
+# But if needed, run manually:
 chmod +x *.sh
 
 # 5. Run installer
