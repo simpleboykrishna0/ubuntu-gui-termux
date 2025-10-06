@@ -41,15 +41,13 @@ install_dependencies() {
     log "Installing dependencies..."
     
     # Update package lists
-    apt update -y
+    pkg update -y
     
     # Install essential packages
-    apt install -y wget proot git curl tar xz-utils
-    
-    # Install VNC server and lightweight GUI packages
-    apt install -y tigervnc xfce4 xfce4-goodies lxde-core lxde-common
+    pkg install -y wget proot git curl tar xz-utils
     
     log "Dependencies installed successfully!"
+    log "Note: VNC and GUI packages will be installed inside Ubuntu"
 }
 
 # Function to download Ubuntu rootfs
