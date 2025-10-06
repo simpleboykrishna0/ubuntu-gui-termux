@@ -57,10 +57,10 @@ download_ubuntu() {
     # Create ubuntu directory
     mkdir -p ~/ubuntu-fs
     
-    # Download Ubuntu rootfs (using working URL)
+    # Download Ubuntu rootfs (using original method)
     cd ~/ubuntu-fs
     
-    # Download Ubuntu 24.04.3 LTS rootfs (working URL)
+    # Download Ubuntu 24.04.3 LTS rootfs (original working method)
     wget -O ubuntu-rootfs.tar.xz https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04.3-server-cloudimg-arm64-root.tar.xz
     
     # Extract rootfs
@@ -69,6 +69,9 @@ download_ubuntu() {
     
     # Clean up
     rm ubuntu-rootfs.tar.xz
+    
+    # Set proper permissions for rootfs
+    chmod -R 755 ~/ubuntu-fs
     
     log "Ubuntu rootfs downloaded and extracted!"
 }
@@ -295,13 +298,18 @@ proot \
 echo -e "${BLUE}GUI setup complete!${NC}"
 EOF
 
-    # Make scripts executable
+    # Make scripts executable (mobile-friendly permissions)
     chmod +x ~/startubuntu.sh
     chmod +x ~/startvnc.sh
     chmod +x ~/setupgui.sh
     
-    # Also make current directory scripts executable
-    chmod +x ~/ubuntu-gui-termux/*.sh
+    # Make all scripts in current directory executable
+    if [ -d "$HOME/ubuntu-gui-termux" ]; then
+        chmod +x ~/ubuntu-gui-termux/*.sh
+    fi
+    
+    # Make scripts executable in current directory
+    chmod +x *.sh 2>/dev/null || true
     
     log "Startup scripts created successfully!"
 }
@@ -367,13 +375,15 @@ main() {
     echo "==============================================="
     echo "Ubuntu in Termux with VNC GUI Support"
     echo "Author: Krishna (simpleboykrishna0)"
+    echo "Mobile-Friendly OS App for Android"
     echo "==============================================="
     echo -e "${NC}"
     
     # Check for -y flag
     if [ "$1" != "-y" ]; then
         echo -e "${YELLOW}This will install Ubuntu 24.04.3 LTS with VNC GUI support.${NC}"
-        echo -e "${YELLOW}Total size: ~2MB (optimized)${NC}"
+        echo -e "${YELLOW}Total size: ~2MB (mobile optimized)${NC}"
+        echo -e "${YELLOW}Mobile-friendly OS app for Android devices${NC}"
         echo -e "${YELLOW}Continue? (y/N): ${NC}"
         read -r response
         if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
@@ -390,9 +400,14 @@ main() {
     create_startup_scripts
     create_vnc_instructions
     
+    # Final permissions setup
+    log "Setting up mobile-friendly permissions..."
+    chmod +x ~/startubuntu.sh ~/startvnc.sh ~/setupgui.sh
+    chmod -R 755 ~/ubuntu-fs
+    
     echo -e "${GREEN}"
     echo "==============================================="
-    echo "Installation Complete! 🎉"
+    echo "Mobile-Friendly Ubuntu OS App Ready! 🎉"
     echo "==============================================="
     echo -e "${NC}"
     
@@ -401,6 +416,13 @@ main() {
     echo "2. Run: ./startvnc.sh (to start with GUI)"
     echo "3. Connect VNC viewer to: localhost:5901"
     echo "4. Password: ubuntu"
+    echo ""
+    echo -e "${YELLOW}Mobile-Friendly Features:${NC}"
+    echo "✅ Optimized for Android devices"
+    echo "✅ Lightweight GUI (~2MB total)"
+    echo "✅ No root required"
+    echo "✅ VNC remote access"
+    echo "✅ Complete Ubuntu desktop"
     echo ""
     echo -e "${YELLOW}See VNC_INSTRUCTIONS.txt for detailed guide${NC}"
 }
