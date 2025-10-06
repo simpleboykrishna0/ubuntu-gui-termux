@@ -98,9 +98,13 @@ function prepare_fs() {
     if [ -d ${CHROOT} ]; then
         if ask "Existing rootfs directory found. Delete and create a new one?" "N"; then
             rm -rf ${CHROOT}
+            echo "[+] Removed existing ${CHROOT} directory"
         else
             KEEP_CHROOT=1
+            echo "[!] Keeping existing ${CHROOT} directory"
         fi
+    else
+        echo "[+] Will create new ${CHROOT} directory"
     fi
 }
 
@@ -198,7 +202,22 @@ function get_sha() {
 function extract_rootfs() {
     if [ -z $KEEP_CHROOT ]; then
         printf "\n${blue}[*] Extracting rootfs... ${reset}\n\n"
-        proot --link2symlink tar -xf "$IMAGE_NAME" 2> /dev/null || :
+        
+        # Create CHROOT directory
+        mkdir -p "${CHROOT}"
+        
+        # Extract to CHROOT directory
+        proot --link2symlink tar -xf "$IMAGE_NAME" -C "${CHROOT}" 2> /dev/null || :
+        
+        # If extraction failed, try alternative method
+        if [ ! -d "${CHROOT}/bin" ]; then
+            echo "[!] Extraction failed, trying alternative method..."
+            cd "${CHROOT}"
+            tar -xf "../${IMAGE_NAME}" 2> /dev/null || :
+            cd ..
+        fi
+        
+        echo "[+] Rootfs extracted to ${CHROOT}/"
     else
         printf "${yellow}[!] Using existing rootfs directory${reset}\n"
     fi
