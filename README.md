@@ -45,10 +45,10 @@
 
 ```bash
 # 1. Update Termux packages
-apt update && apt upgrade -y
+pkg update && pkg upgrade -y
 
 # 2. Install dependencies
-apt install wget proot git curl tar xz-utils tigervnc xfce4 -y
+pkg install wget proot git curl tar xz-utils -y
 
 # 3. Clone repository
 git clone https://github.com/simpleboykrishna0/ubuntu-in-termux.git
@@ -65,6 +65,28 @@ chmod +x ubuntu.sh
 
 # 7. Start Ubuntu with VNC GUI
 ./startvnc.sh
+```
+
+### Alternative Installation (If packages not available)
+
+```bash
+# 1. Update Termux
+pkg update && pkg upgrade -y
+
+# 2. Install basic dependencies
+pkg install wget proot git curl tar xz-utils -y
+
+# 3. Download scripts manually
+wget https://raw.githubusercontent.com/simpleboykrishna0/ubuntu-in-termux/master/ubuntu.sh
+wget https://raw.githubusercontent.com/simpleboykrishna0/ubuntu-in-termux/master/startubuntu.sh
+wget https://raw.githubusercontent.com/simpleboykrishna0/ubuntu-in-termux/master/startvnc.sh
+wget https://raw.githubusercontent.com/simpleboykrishna0/ubuntu-in-termux/master/setupgui.sh
+
+# 4. Make executable
+chmod +x *.sh
+
+# 5. Run installer
+./ubuntu.sh -y
 ```
 
 ---
