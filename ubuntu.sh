@@ -57,11 +57,11 @@ download_ubuntu() {
     # Create ubuntu directory
     mkdir -p ~/ubuntu-fs
     
-    # Download Ubuntu rootfs (using smaller image for GUI)
+    # Download Ubuntu rootfs (using working URL)
     cd ~/ubuntu-fs
     
-    # Download Ubuntu 24.04.3 LTS minimal rootfs
-    wget -O ubuntu-rootfs.tar.xz https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04.3-minimal-cloudimg-arm64-root.tar.xz
+    # Download Ubuntu 24.04.3 LTS rootfs (working URL)
+    wget -O ubuntu-rootfs.tar.xz https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04.3-server-cloudimg-arm64-root.tar.xz
     
     # Extract rootfs
     log "Extracting Ubuntu rootfs..."
@@ -299,6 +299,9 @@ EOF
     chmod +x ~/startubuntu.sh
     chmod +x ~/startvnc.sh
     chmod +x ~/setupgui.sh
+    
+    # Also make current directory scripts executable
+    chmod +x ~/ubuntu-gui-termux/*.sh
     
     log "Startup scripts created successfully!"
 }
