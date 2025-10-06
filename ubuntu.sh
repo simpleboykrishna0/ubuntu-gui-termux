@@ -405,6 +405,9 @@ EOF
 
 function fix_resolv_conf() {
     printf "${blue}[*] Fixing DNS resolution...${reset}\n"
+    # Create /etc directory if it doesn't exist
+    mkdir -p $CHROOT/etc
+    # Create resolv.conf with proper DNS servers
     echo "nameserver 8.8.8.8" > $CHROOT/etc/resolv.conf
     echo "nameserver 8.8.4.4" >> $CHROOT/etc/resolv.conf
     echo "nameserver 1.1.1.1" >> $CHROOT/etc/resolv.conf
