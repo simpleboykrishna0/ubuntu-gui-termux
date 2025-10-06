@@ -470,7 +470,7 @@ cleanup
 
 printf "\n${blue}[*] Configuring Ubuntu for Termux ...\n"
 fix_profile_bash
-fix_resolv_conf
+# fix_resolv_conf  # DNS fix skipped
 fix_sudo
 check_vnc
 create_vnc_launcher
